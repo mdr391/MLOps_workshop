@@ -1,0 +1,21 @@
+version: "3.9"
+
+services:
+  fastapi-app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: fastapi-ml-app
+    ports:
+      - "80:8000"          # EC2 HTTP port → container port
+    env_file:
+      - .env               # AWS credentials & config loaded here
+    environment:
+      - PYTHONUNBUFFERED=1
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s   # Give time for model to load from S3
